@@ -1,0 +1,20 @@
+# Entorno virtual
+venv/
+env/
+.venv/
+
+# Secretos (¡Súper importante!)
+.env
+
+# Base de datos local (solo si usas SQLite, pero es bueno tenerlo)
+*.sqlite3
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Archivos de editor
+.vscode/
+.idea/
+*.swp
