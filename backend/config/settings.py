@@ -134,7 +134,7 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    'ACCES_TOKEN_LIFETIME': timedelta(seconds=3600),
+    'ACCESS_TOKEN_LIFETIME': timedelta(seconds=3600),
 }
 
 AUTH_USER_MODEL = 'users.User'
