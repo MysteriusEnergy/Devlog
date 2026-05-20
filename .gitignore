@@ -18,3 +18,7 @@ __pycache__/
 .vscode/
 .idea/
 *.swp
+
+# Colección Bruno / API local
+Dev/
+
