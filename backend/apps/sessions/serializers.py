@@ -1,18 +1,18 @@
 from rest_framework import serializers
+
 from apps.projects.models import Project
 from apps.sessions.models import WorkSession
 from apps.sessions.services.work_sessions import ( calculate_duration_minutes, has_time_overlap, )
 
 
 class WorkSessionSerializer(serializers.ModelSerializer):
-    project_id = serializers.UUIDField(write_only=True)
-    project = serializers.UUIDField(source="project.id", read_only=True)
+    project_id = serializers.UUIDField()
+
 
     class Meta:
         model = WorkSession
         fields = [
             "id",
-            "project",
             "project_id",
             "date",
             "start_time",
@@ -24,7 +24,6 @@ class WorkSessionSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = [
             "id",
-            "project",
             "duration_minutes",
             "created_at",
             "updated_at",
@@ -55,7 +54,7 @@ class WorkSessionSerializer(serializers.ModelSerializer):
 
             attrs["project"] = project
         else:
-            if "project_id" in attrs or "date" in attrs:
+            if "project" in attrs or "date" in attrs:
                 raise serializers.ValidationError(
                     {"message": "project_id y date no se pueden editar"}
                 )
