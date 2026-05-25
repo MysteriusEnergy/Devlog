@@ -1,6 +1,7 @@
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
+
 from apps.projects.models import Project
 from apps.sessions.models import WorkSession
 from apps.users.models import User
@@ -134,8 +135,147 @@ class WorkSessionAPITests(APITestCase):
         )
         response = self.client.get(self.work_sessions_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]["project_id"], str(self.project.id))
+        self.assertEqual(len(response.data["data"]), 1)
+        self.assertEqual(response.data["data"][0]["project_id"], str(self.project.id))
+
+    def test_list_work_sessions_returns_paginated_response(self):
+        WorkSession.objects.create(
+            user=self.user,
+            project=self.project,
+            date="2026-05-25",
+            start_time="09:00",
+            end_time="10:00",
+            duration_minutes=60,
+        )
+        WorkSession.objects.create(
+            user=self.user,
+            project=self.project,
+            date="2026-05-25",
+            start_time="10:30",
+            end_time="11:30",
+            duration_minutes=60,
+        )
+
+        response = self.client.get(f"{self.work_sessions_url}?page=1&per_page=1")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("data", response.data)
+        self.assertIn("pagination", response.data)
+        self.assertEqual(len(response.data["data"]), 1)
+        self.assertEqual(response.data["pagination"]["page"], 1)
+        self.assertEqual(response.data["pagination"]["per_page"], 1)
+        self.assertEqual(response.data["pagination"]["total"], 2)
+        self.assertEqual(response.data["pagination"]["total_pages"], 2)
+
+    def test_filter_work_sessions_by_project_id(self):
+        another_project = Project.objects.create(
+            user=self.user, name="Otro proyecto", color="#10B981"
+        )
+        WorkSession.objects.create(
+            user=self.user,
+            project=self.project,
+            date="2026-05-25",
+            start_time="09:00",
+            end_time="10:00",
+            duration_minutes=60,
+        )
+        WorkSession.objects.create(
+            user=self.user,
+            project=another_project,
+            date="2026-05-25",
+            start_time="10:30",
+            end_time="11:30",
+            duration_minutes=60,
+        )
+
+        response = self.client.get(
+            f"{self.work_sessions_url}?project_id={self.project.id}"
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data["data"]), 1)
+        self.assertEqual(response.data["data"][0]["project_id"], str(self.project.id))
+
+    def test_filter_work_sessions_by_date(self):
+        WorkSession.objects.create(
+            user=self.user,
+            project=self.project,
+            date="2026-05-24",
+            start_time="09:00",
+            end_time="10:00",
+            duration_minutes=60,
+        )
+        WorkSession.objects.create(
+            user=self.user,
+            project=self.project,
+            date="2026-05-25",
+            start_time="10:30",
+            end_time="11:30",
+            duration_minutes=60,
+        )
+
+        response = self.client.get(f"{self.work_sessions_url}?date=2026-05-25")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data["data"]), 1)
+        self.assertEqual(response.data["data"][0]["date"], "2026-05-25")
+
+    def test_filter_work_sessions_by_range(self):
+        WorkSession.objects.create(
+            user=self.user,
+            project=self.project,
+            date="2026-05-24",
+            start_time="09:00",
+            end_time="10:00",
+            duration_minutes=60,
+        )
+        WorkSession.objects.create(
+            user=self.user,
+            project=self.project,
+            date="2026-05-25",
+            start_time="10:30",
+            end_time="11:30",
+            duration_minutes=60,
+        )
+        WorkSession.objects.create(
+            user=self.user,
+            project=self.project,
+            date="2026-05-26",
+            start_time="12:00",
+            end_time="13:00",
+            duration_minutes=60,
+        )
+
+        response = self.client.get(
+            f"{self.work_sessions_url}?from=2026-05-25&to=2026-05-26"
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data["data"]), 2)
+
+    def test_invalid_page_returns_400(self):
+        response = self.client.get(f"{self.work_sessions_url}?page=0")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("message", response.data)
+
+    def test_invalid_per_page_returns_400(self):
+        response = self.client.get(f"{self.work_sessions_url}?per_page=0")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("message", response.data)
+
+    def test_per_page_greater_than_100_returns_400(self):
+        response = self.client.get(f"{self.work_sessions_url}?per_page=101")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("message", response.data)
+
+    def test_non_integer_pagination_returns_400(self):
+        response = self.client.get(f"{self.work_sessions_url}?page=uno&per_page=dos")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("message", response.data)
 
     def test_user_cannot_update_other_user_work_session(self):
         work_session = WorkSession.objects.create(
