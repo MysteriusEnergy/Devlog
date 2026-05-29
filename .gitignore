@@ -1,24 +1,73 @@
-# Entorno virtual
-venv/
-env/
-.venv/
-
-# Secretos (¡Súper importante!)
+# --- Secretos y variables de entorno ---
 .env
+.env.*
+!**/.env.example
+!**/.env.test
+!**/env.example
 
-# Base de datos local (solo si usas SQLite, pero es bueno tenerlo)
-*.sqlite3
-
-# Python cache
+# --- Python / Django (backend) ---
+venv/
+.venv/
+env/
+ENV/
 __pycache__/
 *.py[cod]
 *$py.class
+*.so
+.Python
+*.egg-info/
+.eggs/
+dist/
+build/
+pip-wheel-metadata/
 
-# Archivos de editor
+# Tests y cobertura
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+*.cover
+.hypothesis/
+
+# Herramientas Python (si las añades)
+.mypy_cache/
+.ruff_cache/
+.dmypy.json
+
+# Django (generados en runtime)
+*.sqlite3
+db.sqlite3
+staticfiles/
+media/
+*.log
+logs/
+
+# --- Node / SvelteKit (frontend) ---
+node_modules/
+.pnpm-store/
+.svelte-kit/
+.output/
+.vercel/
+.netlify/
+.wrangler/
+/build/
+
+# Vite (cachés temporales)
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+
+# --- Sistema operativo ---
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# --- Editores e IDE ---
 .vscode/
 .idea/
 *.swp
+*.swo
+*~
 
-# Colección Bruno / API local
+# --- Colección Bruno / pruebas API locales ---
 Dev/
-
