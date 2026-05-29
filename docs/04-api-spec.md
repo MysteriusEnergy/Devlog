@@ -2,12 +2,12 @@
 
 ## 1. Principios de la API
 
-- La API será RESTFULL.
+- La API será RESTful.
 - Todas las respuestas serán en formato JSON.
 - Todas las rutas protegidas requerirán autenticación JWT.
 - Los recursos siempre estarán asociados al usuario autenticado.
 - Los UUID serán utilizados como identificadores públicos.
-- Los errores tendrán estructura consistente.
+- Los errores tendrán mensajes claros. Los errores de validación pueden devolverse por campo siguiendo el formato estándar de Django REST Framework.
 
 Base URL (local):
 /api/v1
@@ -18,7 +18,7 @@ Base URL (local):
 
 ### 2.1 Registro de Usuario
 
-POST /api/v1/auth/register
+POST /api/v1/auth/register/
 
 Body:
 
@@ -39,7 +39,7 @@ Response 201:
 
 ### 2.2 Login
 
-POST /api/v1/auth/login
+POST /api/v1/auth/login/
 
 Body:
 
@@ -60,7 +60,7 @@ Response 200:
 
 ### 2.3 Refresh Token
 
-POST /api/v1/auth/refresh
+POST /api/v1/auth/refresh/
 
 Body:
 
@@ -83,7 +83,7 @@ Errores:
 
 ### 2.4 Logout
 
-POST /api/v1/auth/logout
+POST /api/v1/auth/logout/
 
 Body:
 
@@ -112,10 +112,10 @@ Errores:
 
 ### 3.1 Crear Proyecto
 
-POST /api/v1/projects
+POST /api/v1/projects/
 
 Headers:
-Authorization: Bearer 
+Authorization: Bearer <access_token>
 
 Body:
 
@@ -140,7 +140,7 @@ Response 201:
 
 ### 3.2 Obtener Proyectos del Usuario
 
-GET /api/v1/projects
+GET /api/v1/projects/
 
 Nota: sin paginación en el MVP. Considerar agregar page/per_page en versión futura
 si el volumen de proyectos por usuario lo justifica.
@@ -162,7 +162,7 @@ Response 200:
 
 ### 3.3 Actualizar Proyecto
 
-PATCH /api/v1/projects/{project_id}
+PATCH /api/v1/projects/{project_id}/
 
 Body (parcial):
 
@@ -177,7 +177,7 @@ Proyecto actualizado.
 
 ### 3.4 Eliminar Proyecto
 
-DELETE /api/v1/projects/{project_id}
+DELETE /api/v1/projects/{project_id}/
 
 Response 204:
 Sin contenido.
@@ -190,7 +190,7 @@ Sin contenido.
 
 ### 4.1 Crear Sesión
 
-POST /api/v1/work-sessions
+POST /api/v1/work-sessions/
 
 Body:
 
@@ -220,7 +220,7 @@ Response 201:
 
 ### 4.2 Obtener Sesiones
 
-GET /api/v1/work-sessions
+GET /api/v1/work-sessions/
 
 Query params opcionales:
 
@@ -264,7 +264,7 @@ Response 200:
 
 ### 4.3 Actualizar Sesión
 
-PATCH /api/v1/work-sessions/{session_id}
+PATCH /api/v1/work-sessions/{session_id}/
 
 Campos editables:
 
@@ -302,13 +302,13 @@ Response 200:
 Errores:
 
 - 400 si start_time >= end_time.
-- 409 si el nuevo horario genera traslape con otra sesión del usuario.
+- 400 si el nuevo horario genera traslape con otra sesión del usuario.
 
 ---
 
 ### 4.4 Eliminar Sesión
 
-DELETE /api/v1/work-sessions/{session_id}
+DELETE /api/v1/work-sessions/{session_id}/
 
 Response 204:
 Sin contenido.
@@ -321,7 +321,7 @@ Sin contenido.
 
 ### 5.1 Resumen General
 
-GET /api/v1/analytics/summary
+GET /api/v1/analytics/summary/
 
 Query params opcionales:
 
@@ -332,8 +332,8 @@ Si no se envían parámetros, se devuelven métricas globales de todo el histori
 
 Ejemplos de uso:
 
-- /api/v1/analytics/summary                          → historial completo
-- /api/v1/analytics/summary?from=2025-04-07&to=2025-04-13 → semana actual
+- /api/v1/analytics/summary/                          → historial completo
+- /api/v1/analytics/summary/?from=2025-04-07&to=2025-04-13 → rango filtrado
 
 Response 200:
 
@@ -356,10 +356,20 @@ independientemente del rango from/to.
 
 ## 6. Estructura de Errores
 
-Todos los errores seguirán este formato:
+Los errores generales manejados explícitamente por la API seguirán este formato:
 
 {
   "status": 400,
   "error": "Bad Request",
   "message": "Descripción clara del error"
+}
+
+Los errores de validación pueden devolverse asociados a campos o a `message`, por ejemplo:
+
+{
+  "project_id": "El proyecto no existe"
+}
+
+{
+  "message": "La sesión se traslapa con otra sesión existente"
 }
