@@ -34,6 +34,10 @@
 	<h1>Dashboard</h1>
 	<p>Sesión iniciada correctamente.</p>
 
+	<nav>
+		<a href={resolve('/projects')}>Ver proyectos</a>
+	</nav>
+
 	<button type="button" onclick={handleLogout} disabled={loading}>
 		{loading ? 'Cerrando sesión...' : 'Cerrar sesión'}
 	</button>
