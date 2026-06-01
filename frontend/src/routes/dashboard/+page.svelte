@@ -36,6 +36,7 @@
 
 	<nav>
 		<a href={resolve('/projects')}>Ver proyectos</a>
+		<a href={resolve('/work-sessions')}>Ver sesiones</a>
 	</nav>
 
 	<button type="button" onclick={handleLogout} disabled={loading}>
