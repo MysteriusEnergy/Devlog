@@ -14,6 +14,7 @@ class AuthStore {
     setTokens(accessToken: string, refreshToken: string) {
         localStorage.setItem('access_token', accessToken);
         localStorage.setItem('refresh_token', refreshToken);
+
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;
     }
@@ -21,6 +22,7 @@ class AuthStore {
     clear() {
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
+
         this.accessToken = null;
         this.refreshToken = null;
     }
