@@ -51,4 +51,9 @@
 			{loading ? 'Ingresando...' : 'Ingresar'}
 		</button>
 	</form>
+
+	<p>
+		¿No tienes cuenta?
+		<a href={resolve('/register')}>Crear cuenta</a>
+	</p>
 </main>
