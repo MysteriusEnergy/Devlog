@@ -1,4 +1,3 @@
--- Active: 1779736373265@@127.0.0.1@5432@devlog_db
 <script lang="ts">
 	import { resolve } from '$app/paths';
 </script>
