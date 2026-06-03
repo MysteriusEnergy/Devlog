@@ -43,7 +43,7 @@ class WorkSessionSerializer(serializers.ModelSerializer):
             )
 
         if self.instance is None:
-            project_id = attrs.get("project_id")
+            project_id = attrs.pop("project_id", None)
 
             try:
                 project = Project.objects.get(id=project_id, user=user)
@@ -54,7 +54,7 @@ class WorkSessionSerializer(serializers.ModelSerializer):
 
             attrs["project"] = project
         else:
-            if "project" in attrs or "date" in attrs:
+            if "project_id" in attrs or "date" in attrs:
                 raise serializers.ValidationError(
                     {"message": "project_id y date no se pueden editar"}
                 )

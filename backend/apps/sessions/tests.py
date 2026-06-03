@@ -306,6 +306,30 @@ class WorkSessionAPITests(APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+    def test_project_id_cannot_be_updated(self):
+        another_project = Project.objects.create(
+            user=self.user,
+            name="Otro proyecto",
+            color="#10B981",
+        )
+        work_session = WorkSession.objects.create(
+            user=self.user,
+            project=self.project,
+            date="2026-05-25",
+            start_time="09:00",
+            end_time="11:00",
+            duration_minutes=120,
+        )
+        
+        response = self.client.patch(
+            self.work_session_detail_url(work_session),
+            {"project_id": str(another_project.id)},
+        )
+        
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        work_session.refresh_from_db()
+        self.assertEqual(work_session.project, self.project)
+
     def test_duration_is_recalculated_when_times_are_updated(self):
         work_session = WorkSession.objects.create(
             user=self.user,
