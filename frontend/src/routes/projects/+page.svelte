@@ -131,86 +131,156 @@
 </script>
 
 <main>
-	<a href={resolve('/dashboard')}>Volver al dashboard</a>
+	<section class="page-header">
+		<a href={resolve('/dashboard')}>Volver al dashboard</a>
+		<h1>Proyectos</h1>
+		<p>Organiza tus proyectos y usa colores para identificarlos rápidamente.</p>
+	</section>
 
-	<h1>Projects</h1>
+	<section>
+		<h2>Crear proyecto</h2>
 
-	<form onsubmit={handleCreate}>
-		<label>
-			Nombre
-			<input bind:value={name} required />
-		</label>
+		<form onsubmit={handleCreate}>
+			<label>
+				Nombre
+				<input bind:value={name} required />
+			</label>
 
-		<label>
-			Descripción
-			<textarea bind:value={description}></textarea>
-		</label>
+			<label>
+				Descripción
+				<textarea bind:value={description}></textarea>
+			</label>
 
-		<label>
-			Color
-			<input bind:value={color} type="color" />
-		</label>
+			<label>
+				Color
+				<input bind:value={color} type="color" />
+			</label>
 
-		<button type="submit" disabled={saving}>
-			{saving ? 'Guardando...' : 'Crear proyecto'}
-		</button>
-	</form>
+			<button type="submit" disabled={saving}>
+				{saving ? 'Guardando...' : 'Crear proyecto'}
+			</button>
+		</form>
+	</section>
 
 	{#if error}
 		<p style="color: red;">{error}</p>
 	{/if}
 
-	{#if loading}
-		<p>Cargando proyectos...</p>
-	{:else if projects.length === 0}
-		<p>Todavía no tienes proyectos.</p>
-	{:else}
-		<ul>
-			{#each projects as project (project.id)}
-				<li>
-					{#if editingProjectId === project.id}
-						<form onsubmit={(event) => handleUpdate(event, project.id)}>
-							<label>
-								Nombre
-								<input bind:value={editName} required />
-							</label>
+	<section>
+		<h2>Tus proyectos</h2>
 
-							<label>
-								Descripción
-								<textarea bind:value={editDescription}></textarea>
-							</label>
+		{#if loading}
+			<p>Cargando proyectos...</p>
+		{:else if projects.length === 0}
+			<p>Todavía no tienes proyectos.</p>
+		{:else}
+			<ul class="project-list">
+				{#each projects as project (project.id)}
+					<li class="project-card">
+						{#if editingProjectId === project.id}
+							<form onsubmit={(event) => handleUpdate(event, project.id)}>
+								<label>
+									Nombre
+									<input bind:value={editName} required />
+								</label>
 
-							<label>
-								Color
-								<input bind:value={editColor} type="color" />
-							</label>
+								<label>
+									Descripción
+									<textarea bind:value={editDescription}></textarea>
+								</label>
 
-							<button type="submit" disabled={updating}>
-								{updating ? 'Guardando...' : 'Guardar'}
-							</button>
+								<label>
+									Color
+									<input bind:value={editColor} type="color" />
+								</label>
 
-							<button type="button" onclick={cancelEdit}> Cancelar </button>
-						</form>
-					{:else}
-						<span style={`color: ${project.color};`}>●</span>
-						<strong>{project.name}</strong>
+								<div class="actions">
+									<button type="submit" disabled={updating}>
+										{updating ? 'Guardando...' : 'Guardar'}
+									</button>
 
-						{#if project.description}
-							<p>{project.description}</p>
+									<button type="button" class="secondary-button" onclick={cancelEdit}
+										>Cancelar</button
+									>
+								</div>
+							</form>
+						{:else}
+							<div class="project-title">
+								<span class="project-color" style={`background: ${project.color};`}></span>
+								<strong>{project.name}</strong>
+							</div>
+
+							{#if project.description}
+								<p>{project.description}</p>
+							{:else}
+								<p class="muted">Sin descripción.</p>
+							{/if}
+
+							<div class="actions">
+								<button type="button" onclick={() => startEdit(project)}>Editar</button>
+
+								<button
+									type="button"
+									class="danger-button"
+									onclick={() => handleDelete(project.id)}
+									disabled={deletingProjectId === project.id}
+								>
+									{deletingProjectId === project.id ? 'Eliminando...' : 'Eliminar'}
+								</button>
+							</div>
 						{/if}
-
-						<button type="button" onclick={() => startEdit(project)}> Editar </button>
-
-						<button
-							type="button"
-							onclick={() => handleDelete(project.id)}
-							disabled={deletingProjectId === project.id}
-						>
-							{deletingProjectId === project.id ? 'Eliminando...' : 'Eliminar'}
-						</button>
-					{/if}
-				</li>
-			{/each}
-		</ul>
-	{/if}
+					</li>
+				{/each}
+			</ul>
+		{/if}
+	</section>
 </main>
+
+<style>
+	.page-header h1 {
+		margin-bottom: 0.25rem;
+	}
+
+	.page-header p,
+	.muted {
+		color: #64748b;
+	}
+
+	.project-list {
+		display: grid;
+		gap: 1rem;
+	}
+
+	.project-card {
+		display: grid;
+		gap: 0.75rem;
+	}
+
+	.project-title {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.project-color {
+		display: inline-block;
+		width: 0.8rem;
+		height: 0.8rem;
+		border-radius: 999px;
+	}
+
+	.actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+	}
+
+	.secondary-button {
+		background: #e2e8f0;
+		color: #172033;
+	}
+
+	.danger-button {
+		background: #dc2626;
+	}
+</style>
