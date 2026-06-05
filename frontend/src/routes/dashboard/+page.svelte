@@ -87,29 +87,29 @@
 	{#if loadingSummary}
 		<p>Cargando métricas...</p>
 	{:else if summary}
-	<section>
-		<h2>Resumen</h2>
-	
-		<div class="metrics">
-			<article class="metric">
-				<span>Total trabajado</span>
-				<strong>{summary.total_hours}</strong>
-				<small>horas</small>
-			</article>
-	
-			<article class="metric">
-				<span>Esta semana</span>
-				<strong>{(summary.weekly_minutes / 60).toFixed(2)}</strong>
-				<small>horas</small>
-			</article>
-	
-			<article class="metric">
-				<span>Total acumulado</span>
-				<strong>{summary.total_minutes}</strong>
-				<small>minutos</small>
-			</article>
-		</div>
-	</section>
+		<section>
+			<h2>Resumen</h2>
+
+			<div class="metrics">
+				<article class="metric">
+					<span>Total trabajado</span>
+					<strong>{summary.total_hours}</strong>
+					<small>horas</small>
+				</article>
+
+				<article class="metric">
+					<span>Esta semana</span>
+					<strong>{(summary.weekly_minutes / 60).toFixed(2)}</strong>
+					<small>horas</small>
+				</article>
+
+				<article class="metric">
+					<span>Total acumulado</span>
+					<strong>{summary.total_minutes}</strong>
+					<small>minutos</small>
+				</article>
+			</div>
+		</section>
 
 		<section>
 			<h2>Horas por proyecto</h2>
@@ -128,7 +128,7 @@
 		</section>
 	{/if}
 
-	<button type="button" onclick={handleLogout} disabled={loading}>
+	<button type="button" class="logout-button" onclick={handleLogout} disabled={loading}>
 		{loading ? 'Cerrando sesión...' : 'Cerrar sesión'}
 	</button>
 </main>
@@ -155,5 +155,9 @@
 	.metric strong {
 		display: block;
 		font-size: 1.8rem;
+	}
+
+	.logout-button {
+		margin-top: 1rem;
 	}
 </style>
