@@ -70,8 +70,10 @@
 </script>
 
 <main>
-	<h1>Dashboard</h1>
-	<p>Sesión iniciada correctamente.</p>
+	<section class="hero">
+		<h1>Dashboard</h1>
+		<p>Resumen general de tu tiempo de trabajo.</p>
+	</section>
 
 	<nav>
 		<a href={resolve('/projects')}>Ver proyectos</a>
@@ -85,15 +87,29 @@
 	{#if loadingSummary}
 		<p>Cargando métricas...</p>
 	{:else if summary}
-		<section>
-			<h2>Resumen</h2>
-
-			<ul>
-				<li>Total trabajado: {summary.total_hours} horas</li>
-				<li>Esta semana: {(summary.weekly_minutes / 60).toFixed(2)} horas</li>
-				<li>Total en minutos: {summary.total_minutes}</li>
-			</ul>
-		</section>
+	<section>
+		<h2>Resumen</h2>
+	
+		<div class="metrics">
+			<article class="metric">
+				<span>Total trabajado</span>
+				<strong>{summary.total_hours}</strong>
+				<small>horas</small>
+			</article>
+	
+			<article class="metric">
+				<span>Esta semana</span>
+				<strong>{(summary.weekly_minutes / 60).toFixed(2)}</strong>
+				<small>horas</small>
+			</article>
+	
+			<article class="metric">
+				<span>Total acumulado</span>
+				<strong>{summary.total_minutes}</strong>
+				<small>minutos</small>
+			</article>
+		</div>
+	</section>
 
 		<section>
 			<h2>Horas por proyecto</h2>
@@ -116,3 +132,28 @@
 		{loading ? 'Cerrando sesión...' : 'Cerrar sesión'}
 	</button>
 </main>
+
+<style>
+	.hero {
+		background: linear-gradient(135deg, #172033, #2563eb);
+		color: white;
+	}
+
+	.metrics {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+		gap: 1rem;
+	}
+
+	.metric {
+		border: 1px solid #e1e6f0;
+		border-radius: 16px;
+		background: white;
+		padding: 1rem;
+	}
+
+	.metric strong {
+		display: block;
+		font-size: 1.8rem;
+	}
+</style>
