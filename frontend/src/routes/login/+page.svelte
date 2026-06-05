@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-    import { resolve } from '$app/paths';
+	import { resolve } from '$app/paths';
 	import { login } from '$lib/api/auth';
 	import { auth } from '$lib/stores/auth.svelte';
 
@@ -21,7 +21,7 @@
 
 			auth.setTokens(response.access_token, response.refresh_token);
 
-            await goto(resolve('/dashboard'));
+			await goto(resolve('/dashboard'));
 		} catch {
 			error = 'Credenciales inválidas o error de conexión';
 		} finally {
