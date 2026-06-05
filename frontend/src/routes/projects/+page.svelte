@@ -99,9 +99,7 @@
 				color: editColor
 			});
 
-			projects = projects.map((project) =>
-				project.id === projectId ? updatedProject : project
-			);
+			projects = projects.map((project) => (project.id === projectId ? updatedProject : project));
 
 			cancelEdit();
 		} catch {
@@ -191,9 +189,7 @@
 								{updating ? 'Guardando...' : 'Guardar'}
 							</button>
 
-							<button type="button" onclick={cancelEdit}>
-								Cancelar
-							</button>
+							<button type="button" onclick={cancelEdit}> Cancelar </button>
 						</form>
 					{:else}
 						<span style={`color: ${project.color};`}>●</span>
@@ -203,9 +199,7 @@
 							<p>{project.description}</p>
 						{/if}
 
-						<button type="button" onclick={() => startEdit(project)}>
-							Editar
-						</button>
+						<button type="button" onclick={() => startEdit(project)}> Editar </button>
 
 						<button
 							type="button"
