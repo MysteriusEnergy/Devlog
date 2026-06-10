@@ -9,8 +9,7 @@
 	let error = $state('');
 	let loading = $state(false);
 
-	// Agregamos el event: Event para controlar el submit
-	async function handleSubmit(event: Event) {
+	async function handleSubmit(event: SubmitEvent) {
 		event.preventDefault();
 
 		error = '';
@@ -30,30 +29,38 @@
 	}
 </script>
 
-<main>
-	<h1>Iniciar sesión</h1>
+<main class="auth-page">
+	<section class="auth-card">
+		<a class="back-link" href={resolve('/')}>Volver al inicio</a>
 
-	<form onsubmit={handleSubmit}>
-		<label>
-			Email
-			<input bind:value={email} type="email" required />
-		</label>
-		<label>
-			Password
-			<input bind:value={password} type="password" required />
-		</label>
+		<div class="auth-header">
+			<h1>Iniciar sesión</h1>
+			<p>Entra a tu dashboard para revisar proyectos, sesiones y métricas.</p>
+		</div>
 
-		{#if error}
-			<p style="color: red;">{error}</p>
-		{/if}
+		<form onsubmit={handleSubmit}>
+			<label>
+				Email
+				<input bind:value={email} type="email" autocomplete="email" required />
+			</label>
 
-		<button type="submit" disabled={loading}>
-			{loading ? 'Ingresando...' : 'Ingresar'}
-		</button>
-	</form>
+			<label>
+				Password
+				<input bind:value={password} type="password" autocomplete="current-password" required />
+			</label>
 
-	<p>
-		¿No tienes cuenta?
-		<a href={resolve('/register')}>Crear cuenta</a>
-	</p>
+			{#if error}
+				<p class="error-message">{error}</p>
+			{/if}
+
+			<button type="submit" disabled={loading}>
+				{loading ? 'Ingresando...' : 'Ingresar'}
+			</button>
+		</form>
+
+		<p class="auth-switch">
+			¿No tienes cuenta?
+			<a href={resolve('/register')}>Crear cuenta</a>
+		</p>
+	</section>
 </main>
