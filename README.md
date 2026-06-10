@@ -9,6 +9,22 @@ DevLog es una aplicacion web para registrar proyectos, sesiones de trabajo y met
 - API base local: `http://127.0.0.1:8000/api/v1`
 - Frontend local: `http://localhost:5173`
 
+## Estado Del MVP
+
+MVP funcional y presentable.
+
+Incluye:
+
+- Registro, login, refresh y logout con JWT.
+- CRUD de proyectos.
+- CRUD de sesiones de trabajo.
+- Calculo automatico de duracion de sesiones.
+- Validacion de traslapes de sesiones.
+- Dashboard con metricas generales.
+- Horas por proyecto.
+- Horas de la semana actual.
+- UI responsive basica con SvelteKit.
+
 ## Estructura
 
 ```text
@@ -49,6 +65,18 @@ Activa el entorno:
 
 ```bash
 source venv/bin/activate
+```
+
+En Windows PowerShell:
+
+```powershell
+.\venv\Scripts\Activate.ps1
+```
+
+En Windows CMD:
+
+```cmd
+.\venv\Scripts\activate.bat
 ```
 
 Instala dependencias:
@@ -159,6 +187,33 @@ Desde `backend` con el entorno virtual activo:
 python manage.py test apps.users apps.projects apps.sessions apps.analytics
 ```
 
+## Verificar Frontend
+
+Desde `frontend`:
+
+```bash
+pnpm check
+```
+
+Opcionalmente:
+
+```bash
+pnpm lint
+```
+
+## Checklist Manual MVP
+
+1. Crear cuenta.
+2. Iniciar sesion.
+3. Crear proyecto.
+4. Editar proyecto.
+5. Crear sesion de trabajo.
+6. Ver metricas en dashboard.
+7. Filtrar sesiones.
+8. Editar sesion.
+9. Eliminar sesion.
+10. Cerrar sesion.
+
 ## Flujo Para Continuar En Otra Maquina
 
 1. Clona el repositorio.
@@ -201,5 +256,6 @@ No se deben subir al repositorio:
 - `backend/.env`
 - `frontend/.env`
 - `backend/venv/`
+- `.venv/`
 - `frontend/node_modules/`
 - colecciones locales con tokens reales
