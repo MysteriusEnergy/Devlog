@@ -220,58 +220,68 @@
 </script>
 
 <main>
-	<a href={resolve('/dashboard')}>Volver al dashboard</a>
-
-	<h1>Work Sessions</h1>
+	<section class="page-header">
+		<a href={resolve('/dashboard')}>Volver al dashboard</a>
+		<h1>Sesiones de trabajo</h1>
+		<p>Registra bloques de trabajo, filtra tu historial y revisa el tiempo invertido.</p>
+	</section>
 
 	{#if error}
 		<p style="color: red;">{error}</p>
 	{/if}
 
 	{#if loading}
-		<p>Cargando...</p>
+		<section>
+			<p>Cargando sesiones...</p>
+		</section>
 	{:else}
 		<section>
 			<h2>Crear sesión</h2>
 
 			{#if projects.length === 0}
-				<p>Primero necesitas crear un proyecto.</p>
-				<a href={resolve('/projects')}>Crear proyecto</a>
+				<div class="empty-state">
+					<p>Primero necesitas crear un proyecto.</p>
+					<a href={resolve('/projects')}>Crear proyecto</a>
+				</div>
 			{:else}
 				<form onsubmit={handleCreate}>
-					<label>
-						Proyecto
-						<select bind:value={projectId} required>
-							<option value="">Selecciona un proyecto</option>
-							{#each projects as project (project.id)}
-								<option value={project.id}>{project.name}</option>
-							{/each}
-						</select>
-					</label>
+					<div class="form-grid">
+						<label>
+							Proyecto
+							<select bind:value={projectId} required>
+								<option value="">Selecciona un proyecto</option>
+								{#each projects as project (project.id)}
+									<option value={project.id}>{project.name}</option>
+								{/each}
+							</select>
+						</label>
 
-					<label>
-						Fecha
-						<input bind:value={date} type="date" required />
-					</label>
+						<label>
+							Fecha
+							<input bind:value={date} type="date" required />
+						</label>
 
-					<label>
-						Hora inicio
-						<input bind:value={startTime} type="time" required />
-					</label>
+						<label>
+							Hora inicio
+							<input bind:value={startTime} type="time" required />
+						</label>
 
-					<label>
-						Hora fin
-						<input bind:value={endTime} type="time" required />
-					</label>
+						<label>
+							Hora fin
+							<input bind:value={endTime} type="time" required />
+						</label>
+					</div>
 
 					<label>
 						Notas
 						<textarea bind:value={notes}></textarea>
 					</label>
 
-					<button type="submit" disabled={saving}>
-						{saving ? 'Guardando...' : 'Crear sesión'}
-					</button>
+					<div class="form-actions">
+						<button type="submit" disabled={saving}>
+							{saving ? 'Guardando...' : 'Crear sesión'}
+						</button>
+					</div>
 				</form>
 			{/if}
 		</section>
@@ -280,111 +290,145 @@
 			<h2>Filtros</h2>
 
 			<form onsubmit={handleApplyFilters}>
-				<label>
-					Proyecto
-					<select bind:value={filterProjectId}>
-						<option value="">Todos los proyectos</option>
-						{#each projects as project (project.id)}
-							<option value={project.id}>{project.name}</option>
-						{/each}
-					</select>
-				</label>
+				<div class="filters-grid">
+					<label>
+						Proyecto
+						<select bind:value={filterProjectId}>
+							<option value="">Todos los proyectos</option>
+							{#each projects as project (project.id)}
+								<option value={project.id}>{project.name}</option>
+							{/each}
+						</select>
+					</label>
 
-				<label>
-					Fecha exacta
-					<input bind:value={filterDate} type="date" />
-				</label>
+					<label>
+						Fecha exacta
+						<input bind:value={filterDate} type="date" />
+					</label>
 
-				<label>
-					Desde
-					<input bind:value={filterFrom} type="date" />
-				</label>
+					<label>
+						Desde
+						<input bind:value={filterFrom} type="date" />
+					</label>
 
-				<label>
-					Hasta
-					<input bind:value={filterTo} type="date" />
-				</label>
+					<label>
+						Hasta
+						<input bind:value={filterTo} type="date" />
+					</label>
+				</div>
 
-				<button type="submit">Aplicar filtros</button>
-
-				<button type="button" onclick={handleClearFilters}> Limpiar filtros </button>
+				<div class="form-actions">
+					<button type="submit">Aplicar filtros</button>
+					<button type="button" class="secondary-button" onclick={handleClearFilters}
+						>Limpiar filtros</button
+					>
+				</div>
 			</form>
 		</section>
 
 		<section>
-			<h2>Sesiones</h2>
-			<p>Total de sesiones: {totalSessions}</p>
+			<div class="sessions-header">
+				<div>
+					<h2>Sesiones</h2>
+					<p>Total de sesiones: {totalSessions}</p>
+				</div>
+			</div>
 
 			{#if sessions.length === 0}
-				<p>Todavía no tienes sesiones.</p>
+				<p class="empty-state">Todavía no tienes sesiones.</p>
 			{:else}
-				<ul>
+				<ul class="session-list">
 					{#each sessions as session (session.id)}
-						<li>
+						<li class="session-card">
 							{#if editingSessionId === session.id}
-								<form onsubmit={(event) => handleUpdate(event, session.id)}>
-									<p>
-										<strong>{getProjectName(session.project_id)}</strong>
-									</p>
+								<form class="edit-form" onsubmit={(event) => handleUpdate(event, session.id)}>
+									<div class="session-header">
+										<div>
+											<strong>{getProjectName(session.project_id)}</strong>
+											<p>{session.date}</p>
+										</div>
+									</div>
 
-									<p>Fecha: {session.date}</p>
+									<div class="form-grid compact-grid">
+										<label>
+											Hora inicio
+											<input bind:value={editStartTime} type="time" required />
+										</label>
 
-									<label>
-										Hora inicio
-										<input bind:value={editStartTime} type="time" required />
-									</label>
-
-									<label>
-										Hora fin
-										<input bind:value={editEndTime} type="time" required />
-									</label>
+										<label>
+											Hora fin
+											<input bind:value={editEndTime} type="time" required />
+										</label>
+									</div>
 
 									<label>
 										Notas
 										<textarea bind:value={editNotes}></textarea>
 									</label>
 
-									<button type="submit" disabled={updating}>
-										{updating ? 'Guardando...' : 'Guardar'}
-									</button>
+									<div class="actions">
+										<button type="submit" disabled={updating}>
+											{updating ? 'Guardando...' : 'Guardar'}
+										</button>
 
-									<button type="button" onclick={cancelEdit}> Cancelar </button>
+										<button type="button" class="secondary-button" onclick={cancelEdit}
+											>Cancelar</button
+										>
+									</div>
 								</form>
 							{:else}
-								<strong>{getProjectName(session.project_id)}</strong>
+								<div class="session-header">
+									<div>
+										<strong>{getProjectName(session.project_id)}</strong>
+										<p class="session-meta">
+											{session.date} · {session.start_time} - {session.end_time}
+										</p>
+									</div>
 
-								<p>
-									{session.date} · {session.start_time} - {session.end_time}
-								</p>
-
-								<p>
-									Duración: {session.duration_minutes} minutos
-								</p>
+									<span class="session-duration">{session.duration_minutes} min</span>
+								</div>
 
 								{#if session.notes}
-									<p>{session.notes}</p>
+									<p class="session-notes">{session.notes}</p>
+								{:else}
+									<p class="muted">Sin notas.</p>
 								{/if}
 
-								<button type="button" onclick={() => startEdit(session)}> Editar </button>
+								<div class="actions">
+									<button type="button" onclick={() => startEdit(session)}>Editar</button>
 
-								<button
-									type="button"
-									onclick={() => handleDelete(session.id)}
-									disabled={deletingSessionId === session.id}
-								>
-									{deletingSessionId === session.id ? 'Eliminando...' : 'Eliminar'}
-								</button>
+									<button
+										type="button"
+										class="danger-button"
+										onclick={() => handleDelete(session.id)}
+										disabled={deletingSessionId === session.id}
+									>
+										{deletingSessionId === session.id ? 'Eliminando...' : 'Eliminar'}
+									</button>
+								</div>
 							{/if}
 						</li>
 					{/each}
 				</ul>
 
-				<div>
-					<button type="button" onclick={goToPreviousPage} disabled={page <= 1}> Anterior </button>
+				<div class="pagination">
+					<button
+						type="button"
+						class="secondary-button"
+						onclick={goToPreviousPage}
+						disabled={page <= 1}
+					>
+						Anterior
+					</button>
 
-					<span>Página {page} de {totalPages}</span>
+					<span class="pagination-status">Página {page} de {totalPages}</span>
 
-					<button type="button" onclick={goToNextPage} disabled={page >= totalPages}>
+					<button
+						type="button"
+						class="secondary-button"
+						onclick={goToNextPage}
+						disabled={page >= totalPages}
+					>
 						Siguiente
 					</button>
 				</div>
@@ -392,3 +436,94 @@
 		</section>
 	{/if}
 </main>
+
+<style>
+	.page-header h1 {
+		margin-bottom: 0.25rem;
+	}
+
+	.page-header p,
+	.muted,
+	.session-meta,
+	.empty-state {
+		color: #64748b;
+	}
+
+	.form-grid,
+	.filters-grid {
+		display: grid;
+		gap: 1rem;
+		grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+	}
+
+	.compact-grid {
+		grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+	}
+
+	.form-actions,
+	.actions,
+	.pagination {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.session-list {
+		display: grid;
+		gap: 1rem;
+	}
+
+	.session-card,
+	.edit-form {
+		display: grid;
+		gap: 0.85rem;
+	}
+
+	.session-header {
+		display: flex;
+		align-items: flex-start;
+		justify-content: space-between;
+		gap: 1rem;
+	}
+
+	.session-header p,
+	.session-notes,
+	.muted {
+		margin: 0.35rem 0 0;
+	}
+
+	.sessions-header h2,
+	.sessions-header p {
+		margin-bottom: 0;
+	}
+
+	.session-duration {
+		border-radius: 999px;
+		background: #dbeafe;
+		color: #1d4ed8;
+		font-size: 0.9rem;
+		font-weight: 700;
+		padding: 0.35rem 0.65rem;
+		white-space: nowrap;
+	}
+
+	.secondary-button {
+		background: #e2e8f0;
+		color: #172033;
+	}
+
+	.danger-button {
+		background: #dc2626;
+	}
+
+	.pagination {
+		justify-content: center;
+		margin-top: 1rem;
+	}
+
+	.pagination-status {
+		color: #64748b;
+		font-weight: 600;
+	}
+</style>
