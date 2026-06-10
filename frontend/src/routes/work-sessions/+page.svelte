@@ -213,43 +213,131 @@
 		}
 	}
 
+	function getProject(projectId: string) {
+		return projects.find((item) => item.id === projectId);
+	}
+
 	function getProjectName(projectId: string) {
-		const project = projects.find((item) => item.id === projectId);
-		return project?.name ?? 'Proyecto desconocido';
+		return getProject(projectId)?.name ?? 'Proyecto desconocido';
+	}
+
+	function getProjectColor(projectId: string) {
+		return getProject(projectId)?.color ?? '#2563eb';
+	}
+
+	function formatDuration(minutes: number) {
+		const hours = Math.floor(minutes / 60);
+		const rest = minutes % 60;
+
+		if (hours === 0) {
+			return `${rest}m`;
+		}
+
+		if (rest === 0) {
+			return `${hours}h`;
+		}
+
+		return `${hours}h ${String(rest).padStart(2, '0')}m`;
 	}
 </script>
 
-<main>
+<svelte:head>
+	<title>Sesiones | DevLog</title>
+</svelte:head>
+
+<main class="sessions-page">
 	<section class="page-header">
-		<a href={resolve('/dashboard')}>Volver al dashboard</a>
-		<h1>Sesiones de trabajo</h1>
-		<p>Registra bloques de trabajo, filtra tu historial y revisa el tiempo invertido.</p>
+		<a class="back-link" href={resolve('/dashboard')}>Volver al dashboard</a>
+
+		<div class="title-row">
+			<div>
+				<h1>Sesiones de trabajo</h1>
+				<p>Registra bloques, consulta el historial y ajusta tu tiempo sin perder contexto.</p>
+			</div>
+
+			<a class="secondary-action" href={resolve('/projects')}>Proyectos</a>
+		</div>
 	</section>
 
 	{#if error}
-		<p style="color: red;">{error}</p>
+		<p class="alert-message">{error}</p>
 	{/if}
 
 	{#if loading}
-		<section>
-			<p>Cargando sesiones...</p>
+		<section class="soft-panel">
+			<p class="muted">Cargando sesiones...</p>
 		</section>
 	{:else}
-		<section>
-			<h2>Crear sesión</h2>
-
-			{#if projects.length === 0}
-				<div class="empty-state">
-					<p>Primero necesitas crear un proyecto.</p>
-					<a href={resolve('/projects')}>Crear proyecto</a>
+		<div class="tools-grid">
+			<section class="session-panel">
+				<div class="section-heading">
+					<h2>Crear sesión</h2>
+					<p>Registra el bloque actual o uno que acabas de cerrar.</p>
 				</div>
-			{:else}
-				<form onsubmit={handleCreate}>
-					<div class="form-grid">
+
+				{#if projects.length === 0}
+					<div class="empty-state">
+						<strong>Primero necesitas un proyecto.</strong>
+						<p>
+							Las sesiones se guardan dentro de un proyecto para que las métricas tengan sentido.
+						</p>
+						<a class="primary-action" href={resolve('/projects')}>Crear proyecto</a>
+					</div>
+				{:else}
+					<form class="session-form" onsubmit={handleCreate}>
+						<div class="form-grid">
+							<label class="wide-field">
+								Proyecto
+								<select bind:value={projectId} required>
+									<option value="">Selecciona un proyecto</option>
+									{#each projects as project (project.id)}
+										<option value={project.id}>{project.name}</option>
+									{/each}
+								</select>
+							</label>
+
+							<label>
+								Fecha
+								<input bind:value={date} type="date" required />
+							</label>
+
+							<label>
+								Inicio
+								<input bind:value={startTime} type="time" required />
+							</label>
+
+							<label>
+								Fin
+								<input bind:value={endTime} type="time" required />
+							</label>
+						</div>
+
+						<label>
+							Notas
+							<textarea bind:value={notes}></textarea>
+						</label>
+
+						<div class="form-actions">
+							<button type="submit" disabled={saving}>
+								{saving ? 'Guardando...' : 'Crear sesión'}
+							</button>
+						</div>
+					</form>
+				{/if}
+			</section>
+
+			<section class="filter-panel">
+				<div class="section-heading">
+					<h2>Filtros</h2>
+					<p>Encuentra sesiones por proyecto o rango de fechas.</p>
+				</div>
+
+				<form class="filter-form" onsubmit={handleApplyFilters}>
+					<div class="filters-grid">
 						<label>
 							Proyecto
-							<select bind:value={projectId} required>
-								<option value="">Selecciona un proyecto</option>
+							<select bind:value={filterProjectId}>
+								<option value="">Todos los proyectos</option>
 								{#each projects as project (project.id)}
 									<option value={project.id}>{project.name}</option>
 								{/each}
@@ -257,106 +345,73 @@
 						</label>
 
 						<label>
-							Fecha
-							<input bind:value={date} type="date" required />
+							Fecha exacta
+							<input bind:value={filterDate} type="date" />
 						</label>
 
 						<label>
-							Hora inicio
-							<input bind:value={startTime} type="time" required />
+							Desde
+							<input bind:value={filterFrom} type="date" />
 						</label>
 
 						<label>
-							Hora fin
-							<input bind:value={endTime} type="time" required />
+							Hasta
+							<input bind:value={filterTo} type="date" />
 						</label>
 					</div>
 
-					<label>
-						Notas
-						<textarea bind:value={notes}></textarea>
-					</label>
-
 					<div class="form-actions">
-						<button type="submit" disabled={saving}>
-							{saving ? 'Guardando...' : 'Crear sesión'}
+						<button type="submit">Aplicar filtros</button>
+						<button type="button" class="secondary-button" onclick={handleClearFilters}>
+							Limpiar filtros
 						</button>
 					</div>
 				</form>
-			{/if}
-		</section>
+			</section>
+		</div>
 
-		<section>
-			<h2>Filtros</h2>
-
-			<form onsubmit={handleApplyFilters}>
-				<div class="filters-grid">
-					<label>
-						Proyecto
-						<select bind:value={filterProjectId}>
-							<option value="">Todos los proyectos</option>
-							{#each projects as project (project.id)}
-								<option value={project.id}>{project.name}</option>
-							{/each}
-						</select>
-					</label>
-
-					<label>
-						Fecha exacta
-						<input bind:value={filterDate} type="date" />
-					</label>
-
-					<label>
-						Desde
-						<input bind:value={filterFrom} type="date" />
-					</label>
-
-					<label>
-						Hasta
-						<input bind:value={filterTo} type="date" />
-					</label>
-				</div>
-
-				<div class="form-actions">
-					<button type="submit">Aplicar filtros</button>
-					<button type="button" class="secondary-button" onclick={handleClearFilters}
-						>Limpiar filtros</button
-					>
-				</div>
-			</form>
-		</section>
-
-		<section>
-			<div class="sessions-header">
+		<section class="sessions-section">
+			<div class="sessions-heading">
 				<div>
-					<h2>Sesiones</h2>
-					<p>Total de sesiones: {totalSessions}</p>
+					<h2>Historial</h2>
+					<p>Sesiones registradas según los filtros actuales.</p>
 				</div>
+
+				<span class="count-pill">{totalSessions} sesiones</span>
 			</div>
 
 			{#if sessions.length === 0}
-				<p class="empty-state">Todavía no tienes sesiones.</p>
+				<div class="empty-state">
+					<strong>Todavía no tienes sesiones.</strong>
+					<p>Crea una sesión para empezar a construir tu historial de trabajo.</p>
+				</div>
 			{:else}
 				<ul class="session-list">
 					{#each sessions as session (session.id)}
-						<li class="session-card">
+						<li
+							class="session-card"
+							style={`--project-color: ${getProjectColor(session.project_id)};`}
+						>
 							{#if editingSessionId === session.id}
 								<form class="edit-form" onsubmit={(event) => handleUpdate(event, session.id)}>
-									<div class="session-header">
-										<div>
-											<strong>{getProjectName(session.project_id)}</strong>
-											<p>{session.date}</p>
+									<div class="session-card-top">
+										<div class="session-title">
+											<span class="session-color"></span>
+											<div>
+												<strong>{getProjectName(session.project_id)}</strong>
+												<p class="session-meta">{session.date}</p>
+											</div>
 										</div>
 									</div>
 
-									<div class="form-grid compact-grid">
+									<div class="compact-grid">
 										<label>
-											Hora inicio
+											Inicio
 											<input bind:value={editStartTime} type="time" required />
 										</label>
 
 										<label>
-											Hora fin
+											Fin
 											<input bind:value={editEndTime} type="time" required />
 										</label>
 									</div>
@@ -371,21 +426,24 @@
 											{updating ? 'Guardando...' : 'Guardar'}
 										</button>
 
-										<button type="button" class="secondary-button" onclick={cancelEdit}
-											>Cancelar</button
-										>
+										<button type="button" class="secondary-button" onclick={cancelEdit}>
+											Cancelar
+										</button>
 									</div>
 								</form>
 							{:else}
-								<div class="session-header">
-									<div>
-										<strong>{getProjectName(session.project_id)}</strong>
-										<p class="session-meta">
-											{session.date} · {session.start_time} - {session.end_time}
-										</p>
+								<div class="session-card-top">
+									<div class="session-title">
+										<span class="session-color"></span>
+										<div>
+											<strong>{getProjectName(session.project_id)}</strong>
+											<p class="session-meta">
+												{session.date} · {session.start_time} - {session.end_time}
+											</p>
+										</div>
 									</div>
 
-									<span class="session-duration">{session.duration_minutes} min</span>
+									<span class="session-duration">{formatDuration(session.duration_minutes)}</span>
 								</div>
 
 								{#if session.notes}
@@ -395,7 +453,9 @@
 								{/if}
 
 								<div class="actions">
-									<button type="button" onclick={() => startEdit(session)}>Editar</button>
+									<button type="button" class="secondary-button" onclick={() => startEdit(session)}>
+										Editar
+									</button>
 
 									<button
 										type="button"
@@ -438,74 +498,243 @@
 </main>
 
 <style>
-	.page-header h1 {
-		margin-bottom: 0.25rem;
+	.sessions-page {
+		display: grid;
+		gap: 1rem;
 	}
 
-	.page-header p,
+	.page-header,
+	.session-panel,
+	.filter-panel,
+	.soft-panel {
+		border-color: #dce3ef;
+	}
+
+	.page-header {
+		display: grid;
+		gap: 1rem;
+	}
+
+	.title-row,
+	.sessions-heading,
+	.session-card-top,
+	.form-actions,
+	.actions,
+	.pagination {
+		display: flex;
+		align-items: flex-start;
+		gap: 1rem;
+	}
+
+	.title-row,
+	.sessions-heading,
+	.session-card-top {
+		justify-content: space-between;
+	}
+
+	.title-row h1,
+	.title-row p,
+	.section-heading h2,
+	.section-heading p,
+	.sessions-heading h2,
+	.sessions-heading p,
+	.session-meta,
+	.session-notes,
+	.muted {
+		margin: 0;
+	}
+
+	.title-row h1 {
+		color: #111827;
+		font-size: 2.2rem;
+		line-height: 1.1;
+	}
+
+	.title-row p,
+	.section-heading p,
+	.sessions-heading p,
 	.muted,
 	.session-meta,
-	.empty-state {
+	.empty-state p {
 		color: #64748b;
 	}
 
-	.form-grid,
-	.filters-grid {
+	.secondary-action,
+	.primary-action {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		min-height: 42px;
+		border-radius: 8px;
+		font-weight: 800;
+		padding: 0.68rem 0.9rem;
+		text-decoration: none;
+		white-space: nowrap;
+	}
+
+	.secondary-action {
+		border: 1px solid #cbd5e1;
+		background: white;
+		color: #172033;
+	}
+
+	.primary-action {
+		background: #2563eb;
+		color: white;
+	}
+
+	.alert-message {
+		border: 1px solid #fecaca;
+		border-radius: 8px;
+		background: #fef2f2;
+		color: #991b1b;
+		padding: 0.85rem 1rem;
+	}
+
+	.tools-grid {
 		display: grid;
+		grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+		align-items: start;
 		gap: 1rem;
-		grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+	}
+
+	.section-heading {
+		display: grid;
+		gap: 0.3rem;
+		margin-bottom: 1rem;
+	}
+
+	.session-form,
+	.filter-form,
+	.edit-form {
+		border: 0;
+		background: transparent;
+		padding: 0;
+	}
+
+	.form-grid,
+	.filters-grid,
+	.compact-grid {
+		display: grid;
+		gap: 0.85rem;
+	}
+
+	.form-grid {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+
+	.wide-field {
+		grid-column: 1 / -1;
+	}
+
+	.filters-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
 
 	.compact-grid {
-		grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
 
 	.form-actions,
 	.actions,
 	.pagination {
-		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
-		gap: 0.5rem;
+	}
+
+	.empty-state {
+		display: grid;
+		justify-items: start;
+		gap: 0.4rem;
+		border: 1px dashed #cbd5e1;
+		border-radius: 8px;
+		background: #f8fafc;
+		padding: 1rem;
+	}
+
+	.empty-state strong {
+		color: #111827;
+	}
+
+	.sessions-section {
+		border: 0;
+		background: transparent;
+		padding: 0;
+	}
+
+	.sessions-heading {
+		align-items: center;
+		margin-bottom: 0.85rem;
+	}
+
+	.count-pill {
+		border: 1px solid #cbd5e1;
+		border-radius: 999px;
+		background: #f8fafc;
+		color: #334155;
+		font-size: 0.88rem;
+		font-weight: 800;
+		padding: 0.4rem 0.7rem;
+		white-space: nowrap;
 	}
 
 	.session-list {
 		display: grid;
-		gap: 1rem;
-	}
-
-	.session-card,
-	.edit-form {
-		display: grid;
 		gap: 0.85rem;
+		margin: 0;
 	}
 
-	.session-header {
+	.session-list li + li {
+		margin-top: 0;
+	}
+
+	.session-card {
+		border-color: #dce3ef;
+		box-shadow: 0 12px 30px rgba(15, 23, 42, 0.04);
+	}
+
+	.session-title {
 		display: flex;
-		align-items: flex-start;
-		justify-content: space-between;
-		gap: 1rem;
+		gap: 0.75rem;
+		min-width: 0;
 	}
 
-	.session-header p,
-	.session-notes,
-	.muted {
-		margin: 0.35rem 0 0;
+	.session-title strong {
+		color: #111827;
 	}
 
-	.sessions-header h2,
-	.sessions-header p {
-		margin-bottom: 0;
+	.session-color {
+		flex: 0 0 auto;
+		width: 0.75rem;
+		height: 2.4rem;
+		border-radius: 999px;
+		background: var(--project-color);
 	}
 
 	.session-duration {
 		border-radius: 999px;
 		background: #dbeafe;
 		color: #1d4ed8;
-		font-size: 0.9rem;
-		font-weight: 700;
+		font-size: 0.88rem;
+		font-weight: 800;
 		padding: 0.35rem 0.65rem;
 		white-space: nowrap;
+	}
+
+	.session-notes,
+	.muted {
+		margin-top: 0.75rem;
+	}
+
+	.session-notes {
+		color: #334155;
+		line-height: 1.55;
+	}
+
+	.session-card > .actions {
+		margin-top: 0.85rem;
+		border-top: 1px solid #e2e8f0;
+		padding-top: 0.85rem;
 	}
 
 	.secondary-button {
@@ -524,6 +753,31 @@
 
 	.pagination-status {
 		color: #64748b;
-		font-weight: 600;
+		font-weight: 700;
+	}
+
+	@media (max-width: 960px) {
+		.tools-grid,
+		.form-grid {
+			grid-template-columns: 1fr;
+		}
+
+		.filters-grid {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+	}
+
+	@media (max-width: 620px) {
+		.title-row,
+		.sessions-heading,
+		.session-card-top {
+			display: grid;
+			justify-content: stretch;
+		}
+
+		.filters-grid,
+		.compact-grid {
+			grid-template-columns: 1fr;
+		}
 	}
 </style>
