@@ -32,36 +32,55 @@
 	}
 </script>
 
-<main>
-	<h1>Crear cuenta</h1>
+<main class="auth-page">
+	<section class="auth-card">
+		<a class="back-link" href={resolve('/')}>Volver al inicio</a>
 
-	<form onsubmit={handleSubmit}>
-		<label>
-			Email
-			<input bind:value={email} type="email" required />
-		</label>
+		<div class="auth-header">
+			<h1>Crear cuenta</h1>
+			<p>Crea tu espacio para empezar a registrar proyectos y sesiones de trabajo.</p>
+		</div>
 
-		<label>
-			Password
-			<input bind:value={password} type="password" required minlength="3" />
-		</label>
+		<form onsubmit={handleSubmit}>
+			<label>
+				Email
+				<input bind:value={email} type="email" autocomplete="email" required />
+			</label>
 
-		<label>
-			Confirmar password
-			<input bind:value={confirmPassword} type="password" required minlength="3" />
-		</label>
+			<label>
+				Password
+				<input
+					bind:value={password}
+					type="password"
+					autocomplete="new-password"
+					required
+					minlength="3"
+				/>
+			</label>
 
-		{#if error}
-			<p style="color: red;">{error}</p>
-		{/if}
+			<label>
+				Confirmar password
+				<input
+					bind:value={confirmPassword}
+					type="password"
+					autocomplete="new-password"
+					required
+					minlength="3"
+				/>
+			</label>
 
-		<button type="submit" disabled={loading}>
-			{loading ? 'Creando cuenta...' : 'Crear cuenta'}
-		</button>
-	</form>
+			{#if error}
+				<p class="error-message">{error}</p>
+			{/if}
 
-	<p>
-		¿Ya tienes cuenta?
-		<a href={resolve('/login')}>Inicia sesión</a>
-	</p>
+			<button type="submit" disabled={loading}>
+				{loading ? 'Creando cuenta...' : 'Crear cuenta'}
+			</button>
+		</form>
+
+		<p class="auth-switch">
+			¿Ya tienes cuenta?
+			<a href={resolve('/login')}>Inicia sesión</a>
+		</p>
+	</section>
 </main>
