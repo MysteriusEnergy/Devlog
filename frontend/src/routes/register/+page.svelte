@@ -32,7 +32,46 @@
 	}
 </script>
 
+<svelte:head>
+	<title>Crear cuenta | DevLog</title>
+</svelte:head>
+
 <main class="auth-page">
+	<section class="auth-aside" aria-label="Resumen de DevLog">
+		<p class="auth-kicker">DevLog</p>
+		<h1>Empieza con un sistema simple para medir tu foco.</h1>
+		<p>
+			Crea tu espacio, separa proyectos por color y empieza a convertir sesiones en métricas claras.
+		</p>
+
+		<div class="auth-preview" aria-hidden="true">
+			<div class="auth-preview-header">
+				<span>Primera semana</span>
+				<strong>12h 20m</strong>
+			</div>
+
+			<div class="auth-session-line">
+				<span class="auth-dot teal"></span>
+				<div>
+					<strong>Proyectos listos</strong>
+					<small>Organizados por color</small>
+				</div>
+			</div>
+
+			<div class="auth-session-line">
+				<span class="auth-dot blue"></span>
+				<div>
+					<strong>Sesiones registradas</strong>
+					<small>Historial consultable</small>
+				</div>
+			</div>
+
+			<div class="auth-progress">
+				<span style="width: 52%;"></span>
+			</div>
+		</div>
+	</section>
+
 	<section class="auth-card">
 		<a class="back-link" href={resolve('/')}>Volver al inicio</a>
 
@@ -43,12 +82,12 @@
 
 		<form onsubmit={handleSubmit}>
 			<label>
-				Email
+				Correo electrónico
 				<input bind:value={email} type="email" autocomplete="email" required />
 			</label>
 
 			<label>
-				Password
+				Contraseña
 				<input
 					bind:value={password}
 					type="password"
@@ -59,7 +98,7 @@
 			</label>
 
 			<label>
-				Confirmar password
+				Confirmar contraseña
 				<input
 					bind:value={confirmPassword}
 					type="password"
